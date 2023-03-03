@@ -14,14 +14,20 @@ const openai = new OpenAIApi(configuration);
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.post("/", async (req, res) => {
+  const prompt = `Please generate a response to this prompt: "${req.body.prompt}"`;
   const response = await openai.createCompletion({
     model: "text-davinci-003",
-    prompt: "Say this is a test",
+    prompt: prompt,
     temperature: 0.6,
     max_tokens: 7,
   });
-  res.send({ result: response.data.choices[0].text });
+  let result = response.data.choices[0].text;
+  result = result.replace(/\\n/g, "");
+  result = result.replace(/\\/g, "");
+  result = result.replace(/!/g, "");
+  result = result.replace(/\n\n/g, "");
+  res.send({ result: result });
 });
 
 export default router;
